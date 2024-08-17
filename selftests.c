@@ -66,15 +66,37 @@ uint32_t ComputedVerifyImpl(const uint32_t hashbits,
 }
 
 #include "museair.h"
+
+void hash(const void* in, const size_t len, const uint64_t seed, void* out) {
+    uint64_t i = museair_hash(in, len, seed);
+    memcpy(&((uint8_t*)out)[0], &i, 8);
+}
+void hash_128(const void* in, const size_t len, const uint64_t seed, void* out) {
+    uint64_t j;
+    uint64_t i = museair_hash_128(in, len, seed, &j);
+    memcpy(&((uint8_t*)out)[0], &i, 8);
+    memcpy(&((uint8_t*)out)[8], &j, 8);
+}
+void bfast_hash(const void* in, const size_t len, const uint64_t seed, void* out) {
+    uint64_t i = museair_bfast_hash(in, len, seed);
+    memcpy(&((uint8_t*)out)[0], &i, 8);
+}
+void bfast_hash_128(const void* in, const size_t len, const uint64_t seed, void* out) {
+    uint64_t j;
+    uint64_t i = museair_bfast_hash_128(in, len, seed, &j);
+    memcpy(&((uint8_t*)out)[0], &i, 8);
+    memcpy(&((uint8_t*)out)[8], &j, 8);
+}
+
 int main() {
     // ensure we are on a little endian machine
-    if (ComputedVerifyImpl(64, museair_hash) != 0x46B2D34D)
+    if (ComputedVerifyImpl(64, hash) != 0x46B2D34D)
         printf("Unexpected museair_hash!\n");
-    if (ComputedVerifyImpl(128, museair_hash_128) != 0xCABAA4CD)
+    if (ComputedVerifyImpl(128, hash_128) != 0xCABAA4CD)
         printf("Unexpected museair_hash_128!\n");
-    if (ComputedVerifyImpl(64, museair_bfast_hash) != 0x98CDFE3E)
+    if (ComputedVerifyImpl(64, bfast_hash) != 0x98CDFE3E)
         printf("Unexpected museair_bfast_hash!\n");
-    if (ComputedVerifyImpl(128, museair_bfast_hash_128) != 0x81D30B6E)
+    if (ComputedVerifyImpl(128, bfast_hash_128) != 0x81D30B6E)
         printf("Unexpected museair_bfast_hash_128!\n");
     printf("Finish.\n");
 }

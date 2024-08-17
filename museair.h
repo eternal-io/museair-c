@@ -519,11 +519,7 @@ static NEVER_INLINE void _museair_hash_loong_128(const bool BFast,
 
 /*----------------------------------------------------------------------------*/
 
-static FORCE_INLINE void _museair_hash(const bool BFast,
-                                       const void* in,
-                                       const size_t len,
-                                       const uint64_t seed,
-                                       void* out) {
+static FORCE_INLINE uint64_t _museair_hash(const bool BFast, const void* in, const size_t len, const uint64_t seed) {
     uint64_t i, j, k;
     if (_museair_likely(len <= 16)) {
         _museair_hash_short((const uint8_t*)in, len, seed, &i, &j);
@@ -533,14 +529,11 @@ static FORCE_INLINE void _museair_hash(const bool BFast,
 #if MUSEAIR_BSWAP > 0
     i = _museair_bswap_64(i);
 #endif
-    memcpy(&((uint8_t*)out)[0], &i, 8);
+    return i;
 }
 
-static FORCE_INLINE void _museair_hash_128(const bool BFast,
-                                           const void* in,
-                                           const size_t len,
-                                           const uint64_t seed,
-                                           void* out) {
+static FORCE_INLINE uint64_t
+_museair_hash_128(const bool BFast, const void* in, const size_t len, const uint64_t seed, uint64_t* upper_half) {
     uint64_t i, j, k;
     if (_museair_likely(len <= 16)) {
         _museair_hash_short_128(BFast, (const uint8_t*)in, len, seed, &i, &j);
@@ -551,21 +544,24 @@ static FORCE_INLINE void _museair_hash_128(const bool BFast,
     i = _museair_bswap_64(i);
     j = _museair_bswap_64(j);
 #endif
-    memcpy(&((uint8_t*)out)[0], &i, 8);
-    memcpy(&((uint8_t*)out)[8], &j, 8);
+    *upper_half = j;
+    return i;
 }
 
 /*----------------------------------------------------------------------------*/
 
-static inline void museair_hash(const void* in, const size_t len, const uint64_t seed, void* out) {
-    _museair_hash(false, in, len, seed, out);
+static inline uint64_t museair_hash(const void* in, const size_t len, const uint64_t seed) {
+    return _museair_hash(false, in, len, seed);
 }
-static inline void museair_hash_128(const void* in, const size_t len, const uint64_t seed, void* out) {
-    _museair_hash_128(false, in, len, seed, out);
+static inline uint64_t museair_hash_128(const void* in, const size_t len, const uint64_t seed, uint64_t* upper_half) {
+    return _museair_hash_128(false, in, len, seed, upper_half);
 }
-static inline void museair_bfast_hash(const void* in, const size_t len, const uint64_t seed, void* out) {
-    _museair_hash(true, in, len, seed, out);
+static inline uint64_t museair_bfast_hash(const void* in, const size_t len, const uint64_t seed) {
+    return _museair_hash(true, in, len, seed);
 }
-static inline void museair_bfast_hash_128(const void* in, const size_t len, const uint64_t seed, void* out) {
-    _museair_hash_128(true, in, len, seed, out);
+static inline uint64_t museair_bfast_hash_128(const void* in,
+                                              const size_t len,
+                                              const uint64_t seed,
+                                              uint64_t* upper_half) {
+    return _museair_hash_128(true, in, len, seed, upper_half);
 }

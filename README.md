@@ -6,10 +6,10 @@ Currently implemented algorithm version is **0.2**.
 ## Quick example
 
 ```c
-uint64_t digest, seed = 42;
+uint64_t digest_lo, digest_hi, seed = 42;
 char msg[] = "It's a beautiful day outside";
 
-museair_hash(msg, strlen(msg), seed, &digest);
+digest_lo = museair_hash_128(msg, strlen(msg), seed, &digest_hi);
 
-printf("%016lx\n", digest);
+printf("%016lx%016lx\n", digest_hi, digest_lo);
 ```
