@@ -1,0 +1,9 @@
+{
+  BasedOnStyle: Chromium,
+  IndentWidth: 4,
+  ColumnLimit: 120,
+  SortIncludes: false,
+  ReflowComments: false,
+  BreakStringLiterals: false,
+  IndentPPDirectives: BeforeHash,
+}
